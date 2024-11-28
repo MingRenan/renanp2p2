@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerenciamento de Funcionários, Mensalistas e Cargos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+    .form-container, .list-container {
+      margin-bottom: 20px;
+    }
+    .form-container input, .form-container button {
+      display: block;
+      margin: 5px 0;
+      padding: 8px;
+      width: 100%;
+    }
+    .list-container ul {
+      list-style: none;
+      padding: 0;
+    }
+    .list-container li {
+      margin: 5px 0;
+      padding: 10px;
+      border: 1px solid #ccc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .list-container button {
+      margin-left: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Gerenciamento de Funcionários, Mensalistas e Cargos</h1>
+
+    <!-- Formulário de Funcionários -->
+    <div class="form-container" id="funcionario-form">
+      <h2>Cadastro de Funcionário</h2>
+      <input type="text" id="nomeFuncionario" placeholder="Nome">
+      <input type="number" id="idadeFuncionario" placeholder="Idade">
+      <input type="email" id="emailFuncionario" placeholder="Email">
+      <input type="text" id="foneFuncionario" placeholder="Telefone">
+      <button onclick="adicionarFuncionario()">Cadastrar Funcionário</button>
+    </div>
+
+    <!-- Lista de Funcionários -->
+    <div class="list-container" id="funcionarios-list">
+      <h2>Funcionários</h2>
+      <ul></ul>
+    </div>
+
+    <!-- Formulário de Mensalistas -->
+    <div class="form-container" id="mensalista-form">
+      <h2>Cadastro de Mensalista</h2>
+      <input type="text" id="matriculaMensalista" placeholder="Matrícula">
+      <input type="number" id="salarioMensalista" placeholder="Salário">
+      <input type="text" id="funcionarioMensalista" placeholder="ID do Funcionário">
+      <button onclick="adicionarMensalista()">Cadastrar Mensalista</button>
+    </div>
+
+    <!-- Lista de Mensalistas -->
+    <div class="list-container" id="mensalistas-list">
+      <h2>Mensalistas</h2>
+      <ul></ul>
+    </div>
+
+    <!-- Formulário de Cargos -->
+    <div class="form-container" id="cargo-form">
+      <h2>Cadastro de Cargo</h2>
+      <input type="text" id="cboCargo" placeholder="CBO">
+      <input type="text" id="descricaoCargo" placeholder="Descrição">
+      <button onclick="adicionarCargo()">Cadastrar Cargo</button>
+    </div>
+
+    <!-- Lista de Cargos -->
+    <div class="list-container" id="cargos-list">
+      <h2>Cargos</h2>
+      <ul></ul>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "http://localhost:3000";
+
+    // --- Funções para Funcionários ---
+    async function fetchFuncionarios() {
+      try {
+        const response = await fetch(`${API_URL}/funcionario`);
+        const funcionarios = await response.json();
+        const list = document.querySelector("#funcionarios-list ul");
+        list.innerHTML = "";
+        funcionarios.forEach(funcionario => {
+          const li = document.createElement("li");
+          li.innerHTML = `
+            ${funcionario.nome} - ${funcionario.email} - ${funcionario.fone}
+            <button onclick="excluirFuncionario('${funcionario._id}')">Excluir</button>
+          `;
+          list.appendChild(li);
+        });
+      } catch (error) {
+        console.error("Erro ao buscar funcionários:", error);
+      }
+    }
+
+    async function adicionarFuncionario() {
+      const nome = document.getElementById("nomeFuncionario").value;
+      const idade = document.getElementById("idadeFuncionario").value;
+      const email = document.getElementById("emailFuncionario").value;
+      const fone = document.getElementById("foneFuncionario").value;
+
+      try {
+        await fetch(`${API_URL}/funcionario`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nome, idade, email, fone }),
+        });
+        fetchFuncionarios();
+      } catch (error) {
+        console.error("Erro ao adicionar funcionário:", error);
+      }
+    }
+
+    async function excluirFuncionario(id) {
+      try {
+        await fetch(`${API_URL}/funcionario`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id }),
+        });
+        fetchFuncionarios();
+      } catch (error) {
+        console.error("Erro ao excluir funcionário:", error);
+      }
+    }
+
+    // --- Funções para Mensalistas ---
+    async function fetchMensalistas() {
+      try {
+        const response = await fetch(`${API_URL}/mensalista`);
+        const mensalistas = await response.json();
+        const list = document.querySelector("#mensalistas-list ul");
+        list.innerHTML = "";
+        mensalistas.forEach(mensalista => {
+          const li = document.createElement("li");
+          li.innerHTML = `
+            ${mensalista.matricula} - R$${mensalista.salario.toFixed(2)}
+            Funcionário: ${mensalista.funcionario?.nome || "Não encontrado"}
+            <button onclick="excluirMensalista('${mensalista._id}')">Excluir</button>
+          `;
+          list.appendChild(li);
+        });
+      } catch (error) {
+        console.error("Erro ao buscar mensalistas:", error);
+      }
+    }
+
+    async function adicionarMensalista() {
+      const matricula = document.getElementById("matriculaMensalista").value;
+      const salario = document.getElementById("salarioMensalista").value;
+      const funcionario = document.getElementById("funcionarioMensalista").value;
+
+      try {
+        await fetch(`${API_URL}/mensalista`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ matricula, salario, funcionario }),
+        });
+        fetchMensalistas();
+      } catch (error) {
+        console.error("Erro ao adicionar mensalista:", error);
+      }
+    }
+
+    async function excluirMensalista(id) {
+      try {
+        await fetch(`${API_URL}/mensalista`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id }),
+        });
+        fetchMensalistas();
+      } catch (error) {
+        console.error("Erro ao excluir mensalista:", error);
+      }
+    }
+
+    // --- Funções para Cargos ---
+    async function fetchCargos() {
+      try {
+        const response = await fetch(`${API_URL}/cargo`);
+        const cargos = await response.json();
+        const list = document.querySelector("#cargos-list ul");
+        list.innerHTML = "";
+        cargos.forEach(cargo => {
+          const li = document.createElement("li");
+          li.innerHTML = `
+            ${cargo.cbo} - ${cargo.descricao}
+            <button onclick="excluirCargo('${cargo._id}')">Excluir</button>
+          `;
+          list.appendChild(li);
+        });
+      } catch (error) {
+        console.error("Erro ao buscar cargos:", error);
+      }
+    }
+
+    async function adicionarCargo() {
+      const cbo = document.getElementById("cboCargo").value;
+      const descricao = document.getElementById("descricaoCargo").value;
+
+      try {
+        await fetch(`${API_URL}/cargos`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cbo, descricao }),
+        });
+        fetchCargos();
+      } catch (error) {
+        console.error("Erro ao adicionar cargo:", error);
+      }
+    }
+
+    async function excluirCargo(id) {
+      try {
+        await fetch(`${API_URL}/cargo`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id }),
+        });
+        fetchCargos();
+      } catch (error) {
+        console.error("Erro ao excluir cargo:", error);
+      }
+    }
+
+    // --- Inicialização ---
+    window.addEventListener("DOMContentLoaded", () => {
+      fetchFuncionarios();
+      fetchMensalistas();
+      fetchCargos();
+    });
+  </script>
+</body>
+</html>
