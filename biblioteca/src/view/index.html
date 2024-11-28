@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerenciamento de Dados</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Gerenciamento de Dados</h1>
+
+    <!-- Formulário de Cadastro -->
+    <div class="form-container">
+      <h2>Cadastro</h2>
+      <form id="formCadastro">
+        <label for="tipo">Tipo:</label>
+        <select id="tipo" name="tipo">
+          <option value="funcionario">Funcionário</option>
+          <option value="mensalista">Mensalista</option>
+          <option value="cargo">Cargo</option>
+        </select>
+
+        <div id="camposForm"></div>
+
+        <button type="submit">Salvar</button>
+      </form>
+    </div>
+
+    <!-- Lista de Dados -->
+    <div class="list-container">
+      <h2>Dados Cadastrados</h2>
+      <div id="lista"></div>
+    </div>
+
+    <!-- Modal de Edição -->
+    <div id="modalEdicao" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Editar</h2>
+        <form id="formEdicao"></form>
+        <button id="btnSalvarEdicao">Salvar Alterações</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
